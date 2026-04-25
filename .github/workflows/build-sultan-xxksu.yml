@@ -1,16 +1,8 @@
 name: Build Sultan + xxKSU
+
 on:
   workflow_dispatch:
-    inputs:
-      device:
-        description: 'Choose Device'
-        required: true
-        default: 'gs201'
-        type: choice
-        options:
-          - gs201
-          - zuma
-          - zumapro
+
 env:
   ANYKERNEL_REPO: https://github.com/TheWildJames/AnyKernel3.git
   PATCHES_REPO: https://github.com/yapixel/kernel_patches
@@ -20,45 +12,46 @@ env:
   KSU_COMMIT: 32472
   GCC_VERSION: "14.2.0"
   GCC_ARCHIVE_URL: "https://kernel.org/pub/tools/crosstool/files/bin/x86_64/14.2.0/x86_64-gcc-14.2.0-nolibc-aarch64-linux.tar.gz"
-jobs:
-  # Step 1: 生成只包含选中设备的矩阵
-  generate-matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Set matrix based on selected device
-        id: set-matrix
-        run: |
-          DEVICE="${{ github.event.inputs.device }}"
-          case "$DEVICE" in
-            gs201)
-              echo "matrix={\"include\":[{\"codename\":\"gs201\",\"kernel_branch\":\"16.0.0-sultan\",\"kernel_repo\":\"https://github.com/kerneltoast/android_kernel_google_tensynos\",\"anykernel_branch\":\"sultan-gs201\",\"defconfig\":\"gs201_defconfig\",\"dtb_path\":\"google-devices/gs201/dts\",\"device_label\":\"gs201\"}]}" >> "$GITHUB_OUTPUT"
-              ;;
-            zuma)
-              echo "matrix={\"include\":[{\"codename\":\"zuma\",\"kernel_branch\":\"16.0.0-sultan\",\"kernel_repo\":\"https://github.com/kerneltoast/android_kernel_google_tensynos\",\"anykernel_branch\":\"sultan-zuma\",\"defconfig\":\"zuma_defconfig\",\"dtb_path\":\"google-devices/zuma/dts\",\"device_label\":\"zuma\"}]}" >> "$GITHUB_OUTPUT"
-              ;;
-            zumapro)
-              echo "matrix={\"include\":[{\"codename\":\"zumapro\",\"kernel_branch\":\"16.0.0-sultan\",\"kernel_repo\":\"https://github.com/kerneltoast/android_kernel_google_tensynos\",\"anykernel_branch\":\"sultan-zumapro\",\"defconfig\":\"zumapro_defconfig\",\"dtb_path\":\"google-devices/zumapro/dts\",\"device_label\":\"zumapro\"}]}" >> "$GITHUB_OUTPUT"
-              ;;
-          esac
 
-  # Step 2: 使用生成的矩阵来构建，只会有一个 job
+jobs:
   build:
-    needs: generate-matrix
     name: Build ${{ matrix.device_label }} Kernel
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
-    
+      matrix:
+        include:
+          - codename: zuma
+            kernel_branch: 16.0.0-sultan
+            kernel_repo: https://github.com/kerneltoast/android_kernel_google_tensynos
+            anykernel_branch: sultan-zuma
+            defconfig: zuma_defconfig
+            dtb_path: google-devices/zuma/dts
+            device_label: zuma
+          - codename: gs201
+            kernel_branch: 16.0.0-sultan
+            kernel_repo: https://github.com/kerneltoast/android_kernel_google_tensynos
+            anykernel_branch: sultan-gs201
+            defconfig: gs201_defconfig
+            dtb_path: google-devices/gs201/dts
+            device_label: gs201
+          - codename: zumapro
+            kernel_branch: 16.0.0-sultan
+            kernel_repo: https://github.com/kerneltoast/android_kernel_google_tensynos
+            anykernel_branch: sultan-zumapro
+            defconfig: zumapro_defconfig
+            dtb_path: google-devices/zumapro/dts
+            device_label: zumapro
+
     outputs:
       ksu_ver: ${{ steps.meta.outputs.ksu_ver }}
       s_tag: ${{ steps.meta.outputs.s_tag }}
+
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
       - name: Install GCC
         run: |
           wget -q "${{ env.GCC_ARCHIVE_URL }}" -O gcc.tar.gz
@@ -215,12 +208,12 @@ jobs:
         with:
           name: Sultan-${{ matrix.codename }}
           path: ${{ env.ZIP_PATH }}
+
   release:
     needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: always() && !cancelled() && needs.build.result == 'success'
     steps:
       - uses: actions/checkout@v6
         with:
@@ -247,14 +240,13 @@ jobs:
             --title "Kernel Build — $TAG" \
             --notes "
             ### 🚀 Build Information
-
             | Component | Details |
             | :--- | :--- |
             | **Kernel Base** | Sultan ($S_TAG) |
             | **Manager** | [backslashxx/KernelSU](https://github.com/backslashxx/KernelSU) |
             | **xxKSU Ver** | \`r$KSU_VER\` |
             | **Compiler** | GCC 14.2.0 |
-
+            
             ### 🛠️ Networking Features (Fortress)
             - **TCP Congestion:** BBR (v1) + FQ
             - **Routing:** Policy Routing (Table 1066) + IPSet (64k)
