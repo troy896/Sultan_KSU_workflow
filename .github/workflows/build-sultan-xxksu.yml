@@ -20,35 +20,36 @@ env:
   GCC_VERSION: "14.2.0"
   GCC_ARCHIVE_URL: "https://kernel.org/pub/tools/crosstool/files/bin/x86_64/14.2.0/x86_64-gcc-14.2.0-nolibc-aarch64-linux.tar.gz"
 jobs:
+  # Step 1: 生成只包含选中设备的矩阵
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix based on selected device
+        id: set-matrix
+        run: |
+          DEVICE="${{ github.event.inputs.device }}"
+          case "$DEVICE" in
+            gs201)
+              echo "matrix={\"include\":[{\"codename\":\"gs201\",\"kernel_branch\":\"16.0.0-sultan\",\"kernel_repo\":\"https://github.com/kerneltoast/android_kernel_google_tensynos\",\"anykernel_branch\":\"sultan-gs201\",\"defconfig\":\"gs201_defconfig\",\"dtb_path\":\"google-devices/gs201/dts\",\"device_label\":\"gs201\"}]}" >> "$GITHUB_OUTPUT"
+              ;;
+            zuma)
+              echo "matrix={\"include\":[{\"codename\":\"zuma\",\"kernel_branch\":\"16.0.0-sultan\",\"kernel_repo\":\"https://github.com/kerneltoast/android_kernel_google_tensynos\",\"anykernel_branch\":\"sultan-zuma\",\"defconfig\":\"zuma_defconfig\",\"dtb_path\":\"google-devices/zuma/dts\",\"device_label\":\"zuma\"}]}" >> "$GITHUB_OUTPUT"
+              ;;
+            zumapro)
+              echo "matrix={\"include\":[{\"codename\":\"zumapro\",\"kernel_branch\":\"16.0.0-sultan\",\"kernel_repo\":\"https://github.com/kerneltoast/android_kernel_google_tensynos\",\"anykernel_branch\":\"sultan-zumapro\",\"defconfig\":\"zumapro_defconfig\",\"dtb_path\":\"google-devices/zumapro/dts\",\"device_label\":\"zumapro\"}]}" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+  # Step 2: 使用生成的矩阵来构建，只会有一个 job
   build:
+    needs: generate-matrix
     name: Build ${{ matrix.device_label }} Kernel
     runs-on: ubuntu-latest
-    if: ${{ matrix.codename == github.event.inputs.device }}
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - codename: zuma
-            kernel_branch: 16.0.0-sultan
-            kernel_repo: https://github.com/kerneltoast/android_kernel_google_tensynos
-            anykernel_branch: sultan-zuma
-            defconfig: zuma_defconfig
-            dtb_path: google-devices/zuma/dts
-            device_label: zuma
-          - codename: gs201
-            kernel_branch: 16.0.0-sultan
-            kernel_repo: https://github.com/kerneltoast/android_kernel_google_tensynos
-            anykernel_branch: sultan-gs201
-            defconfig: gs201_defconfig
-            dtb_path: google-devices/gs201/dts
-            device_label: gs201
-          - codename: zumapro
-            kernel_branch: 16.0.0-sultan
-            kernel_repo: https://github.com/kerneltoast/android_kernel_google_tensynos
-            anykernel_branch: sultan-zumapro
-            defconfig: zumapro_defconfig
-            dtb_path: google-devices/zumapro/dts
-            device_label: zumapro
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     
     outputs:
       ksu_ver: ${{ steps.meta.outputs.ksu_ver }}
@@ -217,7 +218,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    # 逻辑修复：确保只有当 build 真正成功产生了 artifacts 时才运行
     if: always() && !cancelled() && needs.build.result == 'success'
     steps:
       - uses: actions/checkout@v6
@@ -229,7 +229,6 @@ jobs:
       - name: Tag and Release
         env:
           GH_TOKEN: ${{ github.token }}
-          # 注意：这里会取矩阵中运行成功的那个实例的 outputs
           KSU_VER: ${{ needs.build.outputs.ksu_ver }}
           S_TAG: ${{ needs.build.outputs.s_tag }}
         run: |
