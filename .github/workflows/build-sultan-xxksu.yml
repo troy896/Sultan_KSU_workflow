@@ -253,12 +253,12 @@ jobs:
             --notes "
             ### 🚀 Build Information
 
-| Component | Details |
-| :--- | :--- |
-| **Kernel Base** | Sultan ($S_TAG) |
-| **Manager** | [backslashxx/KernelSU](https://github.com/backslashxx/KernelSU) |
-| **xxKSU Ver** | \`r$KSU_VER\` |
-| **Compiler** | GCC 14.2.0 |
+           | Component | Details |
+           | :--- | :--- |
+           | **Kernel Base** | Sultan ($S_TAG) |
+           | **Manager** | [backslashxx/KernelSU](https://github.com/backslashxx/KernelSU) |
+           | **xxKSU Ver** | \`r$KSU_VER\` |
+           | **Compiler** | GCC 14.2.0 |
 
             ### 🛠️ Networking Features (Fortress)
             - **TCP Congestion:** BBR (v1) + FQ
