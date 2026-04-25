@@ -26,6 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        codename: ${{ fromJSON(format('["{0}"]', github.event.inputs.device)) }}
         include:
           - codename: zuma
             kernel_branch: 16.0.0-sultan
@@ -53,11 +54,6 @@ jobs:
       ksu_ver: ${{ steps.meta.outputs.ksu_ver }}
       s_tag: ${{ steps.meta.outputs.s_tag }}
     steps:
-      - name: Skip if not selected device
-        if: github.event.inputs.device != matrix.codename
-        run: |
-          echo "Skipping build for ${{ matrix.codename }}, selected device is ${{ github.event.inputs.device }}"
-          exit 0
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
@@ -212,7 +208,6 @@ jobs:
           ( cd AK3 && zip -r9 "../$ZIP_NAME" . -x "*.git*" )
           echo "ZIP_PATH=$PWD/$ZIP_NAME" >> "$GITHUB_ENV"
       - name: Upload
-        if: github.event.inputs.device == matrix.codename
         uses: actions/upload-artifact@v7
         with:
           name: Sultan-${{ matrix.codename }}
