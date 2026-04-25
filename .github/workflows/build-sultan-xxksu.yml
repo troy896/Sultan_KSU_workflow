@@ -50,7 +50,7 @@ jobs:
             device_label: zumapro
     
     # 逻辑修复：只有当输入设备匹配矩阵代号时才执行该 Job 实例
-    if: github.event.workflow_dispatch.inputs.device == matrix.codename
+    if: github.event.inputs.device == matrix.codename
     outputs:
       ksu_ver: ${{ steps.meta.outputs.ksu_ver }}
       s_tag: ${{ steps.meta.outputs.s_tag }}
@@ -219,7 +219,7 @@ jobs:
     permissions:
       contents: write
     # 逻辑修复：确保只有当 build 真正成功产生了 artifacts 时才运行
-    if: always() && contains(needs.build.result, 'success')
+    if: always() && !cancelled() && needs.build.result == 'success'
     steps:
       - uses: actions/checkout@v6
         with:
