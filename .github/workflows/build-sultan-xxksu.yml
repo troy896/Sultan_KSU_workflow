@@ -17,6 +17,7 @@ env:
   SCRIPTS_REPO: https://github.com/TheSillyOk/sh
   KSU_REPO: backslashxx/KernelSU
   KSU_BRANCH: master
+  KSU_COMMIT: 32472
   GCC_VERSION: "14.2.0"
   GCC_ARCHIVE_URL: "https://kernel.org/pub/tools/crosstool/files/bin/x86_64/14.2.0/x86_64-gcc-14.2.0-nolibc-aarch64-linux.tar.gz"
 jobs:
@@ -79,7 +80,8 @@ jobs:
       - name: KSU & Patches
         working-directory: sultan
         run: |
-          curl -LSs "https://raw.githubusercontent.com/${{ env.KSU_REPO }}/${{ env.KSU_BRANCH }}/kernel/setup.sh" | bash -s -- "${{ env.KSU_BRANCH }}"
+          curl -LSs "https://raw.githubusercontent.com/${{ env.KSU_REPO }}/${{ env.KSU_COMMIT }}/kernel/setup.sh" | bash -s -- "${{ env.KSU_COMMIT }}"
+          #curl -LSs "https://raw.githubusercontent.com/${{ env.KSU_REPO }}/${{ env.KSU_BRANCH }}/kernel/setup.sh" | bash -s -- "${{ env.KSU_BRANCH }}"
           patch -p1 < ../kernel_patches/sultan/60_scripts_mkcompile_h.patch
           patch -p1 < ../kernel_patches/sultan/61_scripts_setlocalversion.patch
           patch -p1 < ../kernel_patches/sultan/62_init_Makefile.patch
