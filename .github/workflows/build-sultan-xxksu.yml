@@ -216,7 +216,6 @@ jobs:
     permissions:
       contents: write
       workflows: write   
-    if: always() && !cancelled() && needs.build.result == 'success'
     steps:
       - uses: actions/checkout@v6
         with:
