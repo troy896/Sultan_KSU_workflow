@@ -48,29 +48,28 @@ jobs:
             defconfig: zumapro_defconfig
             dtb_path: google-devices/zumapro/dts
             device_label: zumapro
+    
+    # 逻辑修复：只有当输入设备匹配矩阵代号时才执行该 Job 实例
+    if: github.event.workflow_dispatch.inputs.device == matrix.codename
     outputs:
       ksu_ver: ${{ steps.meta.outputs.ksu_ver }}
       s_tag: ${{ steps.meta.outputs.s_tag }}
     steps:
       - uses: actions/checkout@v6
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         with:
           fetch-depth: 0
       - name: Install GCC
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         run: |
           wget -q "${{ env.GCC_ARCHIVE_URL }}" -O gcc.tar.gz
           tar -xf gcc.tar.gz
           echo "GCC_PATH=$PWD/gcc-${{ env.GCC_VERSION }}-nolibc/aarch64-linux/bin/aarch64-linux-" >> "$GITHUB_ENV"
       - name: Clone Source
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         run: |
           git clone --depth=1 "${{ matrix.kernel_repo }}" -b "${{ matrix.kernel_branch }}" sultan
           git clone --depth=1 "${{ env.ANYKERNEL_REPO }}" -b "${{ matrix.anykernel_branch }}" AK3
           git clone --depth=1 "${{ env.PATCHES_REPO }}" kernel_patches
           git clone --depth=1 "${{ env.SCRIPTS_REPO }}" sh
       - name: Metadata
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         id: meta
         run: |
           S_TAG=$(git -C sultan tag --sort=-committerdate | head -n1 || echo "latest")
@@ -78,7 +77,6 @@ jobs:
           echo "ksu_ver=$K_VER" >> "$GITHUB_OUTPUT"
           echo "s_tag=$S_TAG" >> "$GITHUB_OUTPUT"
       - name: KSU & Patches
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         working-directory: sultan
         run: |
           curl -LSs "https://raw.githubusercontent.com/${{ env.KSU_REPO }}/${{ env.KSU_BRANCH }}/kernel/setup.sh" | bash -s -- "${{ env.KSU_BRANCH }}"
@@ -86,7 +84,6 @@ jobs:
           patch -p1 < ../kernel_patches/sultan/61_scripts_setlocalversion.patch
           patch -p1 < ../kernel_patches/sultan/62_init_Makefile.patch
       - name: Global Defconfig Analysis
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         working-directory: sultan
         run: |
           echo "=== Scanning All Relevant Defconfigs ==="
@@ -100,7 +97,6 @@ jobs:
             done
           done
       - name: Inject Configuration (Fortress Deep Unlock)
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         working-directory: sultan
         env:
           CROSS_COMPILE: ${{ env.GCC_PATH }}
@@ -196,7 +192,6 @@ jobs:
           # Final Sync for Sultan de-GKIed dependencies
           make O=out CROSS_COMPILE="$CROSS_COMPILE" CC="$CC" olddefconfig
       - name: Build Kernel (Production)
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         working-directory: sultan
         env:
           KBUILD_BUILD_USER: build-user
@@ -207,7 +202,6 @@ jobs:
           # Parallel build on all available cores
           make O=out CROSS_COMPILE="$CROSS_COMPILE" CC="$CC" -j"$(nproc --all)"
       - name: Package
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         run: |
           cp sultan/out/arch/arm64/boot/Image.lz4 AK3/Image.lz4
           cat sultan/out/${{ matrix.dtb_path }}/*.dtb > AK3/dtb
@@ -215,17 +209,17 @@ jobs:
           ( cd AK3 && zip -r9 "../$ZIP_NAME" . -x "*.git*" )
           echo "ZIP_PATH=$PWD/$ZIP_NAME" >> "$GITHUB_ENV"
       - name: Upload
-        if: github.event.workflow_dispatch.inputs.device == matrix.codename
         uses: actions/upload-artifact@v7
         with:
           name: Sultan-${{ matrix.codename }}
           path: ${{ env.ZIP_PATH }}
   release:
     needs: build
-    if: always() && needs.build.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    # 逻辑修复：确保只有当 build 真正成功产生了 artifacts 时才运行
+    if: always() && contains(needs.build.result, 'success')
     steps:
       - uses: actions/checkout@v6
         with:
@@ -236,6 +230,7 @@ jobs:
       - name: Tag and Release
         env:
           GH_TOKEN: ${{ github.token }}
+          # 注意：这里会取矩阵中运行成功的那个实例的 outputs
           KSU_VER: ${{ needs.build.outputs.ksu_ver }}
           S_TAG: ${{ needs.build.outputs.s_tag }}
         run: |
@@ -253,12 +248,12 @@ jobs:
             --notes "
             ### 🚀 Build Information
 
-           | Component | Details |
-           | :--- | :--- |
-           | **Kernel Base** | Sultan ($S_TAG) |
-           | **Manager** | [backslashxx/KernelSU](https://github.com/backslashxx/KernelSU) |
-           | **xxKSU Ver** | \`r$KSU_VER\` |
-           | **Compiler** | GCC 14.2.0 |
+            | Component | Details |
+            | :--- | :--- |
+            | **Kernel Base** | Sultan ($S_TAG) |
+            | **Manager** | [backslashxx/KernelSU](https://github.com/backslashxx/KernelSU) |
+            | **xxKSU Ver** | \`r$KSU_VER\` |
+            | **Compiler** | GCC 14.2.0 |
 
             ### 🛠️ Networking Features (Fortress)
             - **TCP Congestion:** BBR (v1) + FQ
