@@ -2,6 +2,16 @@ name: Build Sultan + xxKSU
 
 on:
   workflow_dispatch:
+   inputs:
+      device:
+        description: 'Choose Device'
+        required: true
+        default: 'gs201'
+        type: choice
+        options:
+          - gs201
+          - zuma
+          - zumapro
 
 env:
   ANYKERNEL_REPO: https://github.com/TheWildJames/AnyKernel3.git
