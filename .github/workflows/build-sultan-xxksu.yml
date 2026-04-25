@@ -3,6 +3,10 @@ name: Build Sultan + xxKSU
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  workflows: write
+
 env:
   ANYKERNEL_REPO: https://github.com/TheWildJames/AnyKernel3.git
   PATCHES_REPO: https://github.com/yapixel/kernel_patches
@@ -214,8 +218,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      workflows: write   
+      contents: write 
     steps:
       - uses: actions/checkout@v6
         with:
