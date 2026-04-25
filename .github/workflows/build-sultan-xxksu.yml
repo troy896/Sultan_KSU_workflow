@@ -23,10 +23,10 @@ jobs:
   build:
     name: Build ${{ matrix.device_label }} Kernel
     runs-on: ubuntu-latest
+    if: ${{ matrix.codename == github.event.inputs.device }}
     strategy:
       fail-fast: false
       matrix:
-        codename: ${{ fromJSON(format('["{0}"]', github.event.inputs.device)) }}
         include:
           - codename: zuma
             kernel_branch: 16.0.0-sultan
