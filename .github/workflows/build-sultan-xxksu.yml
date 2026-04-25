@@ -21,10 +21,11 @@ env:
   KSU_BRANCH: master
   GCC_VERSION: "14.2.0"
   GCC_ARCHIVE_URL: "https://kernel.org/pub/tools/crosstool/files/bin/x86_64/14.2.0/x86_64-gcc-14.2.0-nolibc-aarch64-linux.tar.gz"
-
+  
 jobs:
   build:
     name: Build ${{ matrix.device_label }} Kernel
+    if: github.event.workflow_dispatch.inputs.device == matrix.codename
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
