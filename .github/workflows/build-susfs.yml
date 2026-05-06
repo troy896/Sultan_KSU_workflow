@@ -211,7 +211,8 @@ jobs:
           CONFIG_INOTIFY_USER=y
           CONFIG_TMPFS_POSIX_ACL=y
           CONFIG_TMPFS_INODE64=y
-          CONFIG_ARM64_16K_PAGES=y
+          CONFIG_TMPFS_XATTR=y
+          CONFIG_TMPFS_POSIX_ACL=y
           EOF
 
           # Guardrails
