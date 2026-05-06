@@ -130,6 +130,7 @@ jobs:
           cat <<EOF >> "$DEFCONFIG"
           # KernelSU Core (Source Integrated)
           CONFIG_KSU=y
+          CONFIG_KSU_EXTRAS=y
           # CONFIG_KSU_KPROBES_HOOK is not set
           # CONFIG_KSU_DEBUG is not set
           # CONFIG_KSU_ALLOWLIST_WORKAROUND is not set
