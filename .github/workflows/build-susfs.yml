@@ -120,6 +120,9 @@ jobs:
         run: |
           cd sultan
           DEFCONFIG="arch/arm64/configs/${{ matrix.kernel.defconfig }}"
+
+          wget https://raw.githubusercontent.com/ahmed-alnassif/GKI-Duchamp/refs/heads/master/kernel-patches/common/unicode_bypass_fix_6.1.patch
+          patch -p1 --fuzz=3 < unicode_bypass_fix_6.1.patch
           
           # Clean start for pillars
           echo "" >> "$DEFCONFIG"
