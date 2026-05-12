@@ -27,18 +27,6 @@ jobs:
       fail-fast: false
       matrix:
         kernel:
-          - codename: gs201
-            kernel_repo: "https://github.com/yapixel/anaconda_kernel_google_tensynos"
-            kernel_branch: "anaconda-tensynos-qpr3"
-            anykernel_branch: "sultan-gs201"
-            defconfig: gs201_defconfig
-            dtb_path: "google-devices/gs201/dts"
-          - codename: zuma
-            kernel_repo: "https://github.com/yapixel/anaconda_kernel_google_tensynos"
-            kernel_branch: "anaconda-tensynos-qpr3"
-            anykernel_branch: "sultan-zuma"
-            defconfig: zuma_defconfig
-            dtb_path: "google-devices/zuma/dts"
           - codename: zumapro
             kernel_repo: "https://github.com/yapixel/anaconda_kernel_google_tensynos"
             kernel_branch: "anaconda-tensynos-qpr3"
