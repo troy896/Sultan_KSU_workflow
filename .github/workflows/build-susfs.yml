@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  ANYKERNEL_REPO: https://github.com/TheWildJames/AnyKernel3.git
-  PATCHES_REPO: https://github.com/yapixel/kernel_patches
+  ANYKERNEL_REPO: https://github.com/troy896/AnyKernel3.git
+  PATCHES_REPO: https://github.com/troy896/kernel_patches
   SCRIPTS_REPO: https://github.com/TheSillyOk/sh
   KSU_BRANCH: master
   # Single Source of Truth for Toolchain
@@ -28,8 +28,8 @@ jobs:
       matrix:
         kernel:
           - codename: zumapro
-            kernel_repo: "https://github.com/yapixel/anaconda_kernel_google_tensynos"
-            kernel_branch: "anaconda-tensynos-qpr3"
+            kernel_repo: "https://github.com/troy896/anaconda_kernel_google_tensynos"
+            kernel_branch: "anaconda-tensynos-qpr2"
             anykernel_branch: "sultan-zumapro"
             defconfig: zumapro_defconfig
             dtb_path: "google-devices/zumapro/dts"
@@ -135,10 +135,10 @@ jobs:
           CONFIG_KSU_SUSFS_TRY_UMOUNT=y
           CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
           CONFIG_KSU_SUSFS_SPOOF_UNAME=y
+          CONFIG_KSU_SUSFS_ENABLE_LOG=y
           CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
           CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
           CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-          # CONFIG_KSU_SUSFS_ENABLE_LOG is not set
 
           # atp4pixel Networking & System Pillars
           CONFIG_NETFILTER_ADVANCED=y
@@ -205,6 +205,11 @@ jobs:
           CONFIG_TMPFS_INODE64=y
           CONFIG_TMPFS_XATTR=y
           CONFIG_OVERLAY_FS=y
+          CONFIG_HZ_300=y
+          CONFIG_HZ=300
+          CONFIG_CPU_FREQ=y
+          CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
+          CONFIG_CPU_FREQ_GOV_ONDEMAND=y
           EOF
 
           # Guardrails
