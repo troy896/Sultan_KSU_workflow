@@ -61,6 +61,7 @@ jobs:
           git clone --depth=1 "${{ env.ANYKERNEL_REPO }}" -b "${{ matrix.kernel.anykernel_branch }}" AK3
           git clone --depth=1 "${{ env.PATCHES_REPO }}" -b dev kernel_patches
           git clone --depth=1 "${{ env.SCRIPTS_REPO }}" sh
+          git clone https://github.com/maxsteeel/nomount.git
 
       - name: Apply build-reproducibility patches
         working-directory: sultan
@@ -111,8 +112,12 @@ jobs:
           DEFCONFIG="arch/arm64/configs/${{ matrix.kernel.defconfig }}"
 
           wget https://raw.githubusercontent.com/ahmed-alnassif/GKI-Duchamp/refs/heads/master/kernel-patches/common/unicode_bypass_fix_6.1.patch
+          wget https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/master/kernel/nomount_kernel_integration.patch
+          patch -p1 --fuzz=3 < nomount_kernel_integration.patch
           patch -p1 --fuzz=3 < unicode_bypass_fix_6.1.patch
           patch -p1 --fuzz=3 < ../kernel_patches/sultan/selinux_hide.patch
+          cp ../nomount/kernel/src/* ./fs
+          
           
           # Clean start for pillars
           echo "" >> "$DEFCONFIG"
@@ -142,6 +147,7 @@ jobs:
           CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
           CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
           CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
+          CONFIG_NOMOUNT=y
 
           # atp4pixel Networking & System Pillars
           CONFIG_NETFILTER_ADVANCED=y
