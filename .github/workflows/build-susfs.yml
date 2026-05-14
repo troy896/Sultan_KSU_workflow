@@ -56,6 +56,7 @@ jobs:
           git clone --depth=1 "${{ matrix.kernel.kernel_repo }}" -b "${{ matrix.kernel.kernel_branch }}" sultan
           cd sultan
           git submodule update --init --recursive
+          git submodule update --remote KernelSU
           cd ..
           git clone --depth=1 "${{ env.ANYKERNEL_REPO }}" -b "${{ matrix.kernel.anykernel_branch }}" AK3
           git clone --depth=1 "${{ env.PATCHES_REPO }}" -b dev kernel_patches
@@ -111,6 +112,7 @@ jobs:
 
           wget https://raw.githubusercontent.com/ahmed-alnassif/GKI-Duchamp/refs/heads/master/kernel-patches/common/unicode_bypass_fix_6.1.patch
           patch -p1 --fuzz=3 < unicode_bypass_fix_6.1.patch
+          patch -p1 --fuzz=3 < ../kernel_patches/sultan/selinux_hide.patch
           
           # Clean start for pillars
           echo "" >> "$DEFCONFIG"
@@ -119,6 +121,7 @@ jobs:
           # KernelSU Core (Source Integrated)
           CONFIG_KSU=y
           CONFIG_KSU_EXTRAS=y
+          CONFIG_KSU_FEATURE_SELINUX_HIDE=y
           # CONFIG_KSU_KPROBES_HOOK is not set
           # CONFIG_KSU_DEBUG is not set
           # CONFIG_KSU_ALLOWLIST_WORKAROUND is not set
@@ -205,8 +208,6 @@ jobs:
           CONFIG_TMPFS_INODE64=y
           CONFIG_TMPFS_XATTR=y
           CONFIG_OVERLAY_FS=y
-          CONFIG_HZ_300=y
-          CONFIG_HZ=300
           CONFIG_CPU_FREQ=y
           CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
           CONFIG_CPU_FREQ_GOV_ONDEMAND=y
