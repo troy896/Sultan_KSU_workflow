@@ -29,7 +29,7 @@ jobs:
         kernel:
           - codename: zumapro
             kernel_repo: "https://github.com/troy896/anaconda_kernel_google_tensynos"
-            kernel_branch: "anaconda-tensynos-qpr2"
+            kernel_branch: "anaconda-tensynos-qpr3"
             anykernel_branch: "sultan-zumapro"
             defconfig: zumapro_defconfig
             dtb_path: "google-devices/zumapro/dts"
@@ -205,6 +205,11 @@ jobs:
           CONFIG_TMPFS_INODE64=y
           CONFIG_TMPFS_XATTR=y
           CONFIG_OVERLAY_FS=y
+          CONFIG_HZ_300=y
+          CONFIG_HZ=300
+          CONFIG_CPU_FREQ=y
+          CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
+          CONFIG_CPU_FREQ_GOV_ONDEMAND=y
           EOF
 
           # Guardrails
