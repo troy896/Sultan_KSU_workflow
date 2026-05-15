@@ -208,10 +208,6 @@ jobs:
           CONFIG_TMPFS_INODE64=y
           CONFIG_TMPFS_XATTR=y
           CONFIG_OVERLAY_FS=y
-          CONFIG_CPU_FREQ=y
-          CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
-          CONFIG_CPU_FREQ_GOV_ONDEMAND=y
-          CONFIG_ARM64_16K_PAGES=y
           EOF
 
           # Guardrails
