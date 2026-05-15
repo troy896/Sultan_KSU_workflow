@@ -112,7 +112,7 @@ jobs:
 
           wget https://raw.githubusercontent.com/ahmed-alnassif/GKI-Duchamp/refs/heads/master/kernel-patches/common/unicode_bypass_fix_6.1.patch
           patch -p1 --fuzz=3 < unicode_bypass_fix_6.1.patch
-          # patch -p1 --fuzz=3 < ../kernel_patches/sultan/selinux_hide.patch
+          patch -p1 --fuzz=3 < ../kernel_patches/sultan/selinux_hide.patch
           
           # Clean start for pillars
           echo "" >> "$DEFCONFIG"
