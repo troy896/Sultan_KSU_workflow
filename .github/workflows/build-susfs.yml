@@ -13,7 +13,7 @@ env:
   SCRIPTS_REPO: https://github.com/TheSillyOk/sh
   KSU_BRANCH: master
   # Single Source of Truth for Toolchain
-  GCC_VERSION: "14.2.rel1"
+  GCC_VERSION: "15.2.0"
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
         kernel:
           - codename: zumapro
             kernel_repo: "https://github.com/Trijal08/anaconda_kernel_google_tensynos"
-            kernel_branch: "qpr3-stable"
+            kernel_branch: "anaconda-tensynos-qpr3"
             anykernel_branch: "sultan-zumapro"
             defconfig: zumapro_defconfig
             dtb_path: "google-devices/zumapro/dts"
