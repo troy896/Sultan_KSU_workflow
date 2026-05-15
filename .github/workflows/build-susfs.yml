@@ -107,7 +107,6 @@ jobs:
           grep -q "source \"drivers/kernelsu/Kconfig\"" "$DRIVER_DIR/Kconfig" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$DRIVER_DIR/Kconfig"
 
       - name: 配置 ZRAM LZ4 补丁栈
-        if: ${{ inputs.use_zram }}
         run: |
           # 第一阶段：升级 LZ4 到 1.10.0 并添加 ARM64 NEON 加速
           cd sultan
