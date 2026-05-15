@@ -13,7 +13,7 @@ env:
   SCRIPTS_REPO: https://github.com/TheSillyOk/sh
   KSU_BRANCH: master
   # Single Source of Truth for Toolchain
-  GCC_VERSION: "15.2.0"
+  GCC_VERSION: "14.2.rel1"
 
 jobs:
   build:
@@ -28,8 +28,8 @@ jobs:
       matrix:
         kernel:
           - codename: zumapro
-            kernel_repo: "https://github.com/troy896/anaconda_kernel_google_tensynos"
-            kernel_branch: "anaconda-tensynos-qpr3"
+            kernel_repo: "https://github.com/Trijal08/anaconda_kernel_google_tensynos"
+            kernel_branch: "qpr3-stable"
             anykernel_branch: "sultan-zumapro"
             defconfig: zumapro_defconfig
             dtb_path: "google-devices/zumapro/dts"
@@ -40,28 +40,23 @@ jobs:
 
       - name: Install GCC (Dynamic Toolchain)
         run: |
-          # Construct URL dynamically from GCC_VERSION
-          BASE_URL="https://kernel.org/pub/tools/crosstool/files/bin/x86_64/${{ env.GCC_VERSION }}"
-          ARCHIVE="x86_64-gcc-${{ env.GCC_VERSION }}-nolibc-aarch64-linux.tar.gz"
+          BASE_URL="https://developer.arm.com/-/media/Files/downloads/gnu/"${{ env.GCC_VERSION }}"/binrel/"
+          ARCHIVE="arm-gnu-toolchain-"${{ env.GCC_VERSION }}"-x86_64-aarch64-none-linux-gnu.tar.xz"
           
-          echo "[+] Downloading GCC ${{ env.GCC_VERSION }}..."
           wget -q "${BASE_URL}/${ARCHIVE}" -O gcc.tar.gz
           tar -xf gcc.tar.gz
-          
-          # Set toolchain path dynamically
-          echo "TOOLCHAIN_PATH=$GITHUB_WORKSPACE/gcc-${{ env.GCC_VERSION }}-nolibc/aarch64-linux/bin/aarch64-linux-" >> $GITHUB_ENV
+          echo "TOOLCHAIN_PATH=$GITHUB_WORKSPACE/arm-gnu-toolchain-${{ env.GCC_VERSION }}-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-" >> $GITHUB_ENV
 
       - name: Clone source and dependencies
         run: |
           git clone --depth=1 "${{ matrix.kernel.kernel_repo }}" -b "${{ matrix.kernel.kernel_branch }}" sultan
           cd sultan
           git submodule update --init --recursive
-          git submodule update --remote KernelSU
           cd ..
           git clone --depth=1 "${{ env.ANYKERNEL_REPO }}" -b "${{ matrix.kernel.anykernel_branch }}" AK3
           git clone --depth=1 "${{ env.PATCHES_REPO }}" -b dev kernel_patches
           git clone --depth=1 "${{ env.SCRIPTS_REPO }}" sh
-          git clone https://github.com/maxsteeel/nomount.git
+          git clone https://github.com/maxsteeel/nomount.git nomount
 
       - name: Apply build-reproducibility patches
         working-directory: sultan
@@ -70,6 +65,7 @@ jobs:
             "../kernel_patches/sultan/60_scripts_mkcompile_h.patch"
             "../kernel_patches/sultan/61_scripts_setlocalversion.patch"
             "../kernel_patches/sultan/62_init_Makefile.patch"
+            "../kernel_patches/sultan/tmpfs.patch"
           )
           for p in "${PATCHES[@]}"; do
             [ -f "$p" ] && patch -p1 < "$p" || echo "Optional patch $p skipped."
@@ -111,11 +107,11 @@ jobs:
           cd sultan
           DEFCONFIG="arch/arm64/configs/${{ matrix.kernel.defconfig }}"
 
-          wget https://raw.githubusercontent.com/ahmed-alnassif/GKI-Duchamp/refs/heads/master/kernel-patches/common/unicode_bypass_fix_6.1.patch
+          # wget https://raw.githubusercontent.com/ahmed-alnassif/GKI-Duchamp/refs/heads/master/kernel-patches/common/unicode_bypass_fix_6.1.patch
           wget https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/master/kernel/nomount_kernel_integration.patch
           patch -p1 --fuzz=3 < nomount_kernel_integration.patch
-          patch -p1 --fuzz=3 < unicode_bypass_fix_6.1.patch
-          patch -p1 --fuzz=3 < ../kernel_patches/sultan/selinux_hide.patch
+          # patch -p1 --fuzz=3 < unicode_bypass_fix_6.1.patch
+          # patch -p1 --fuzz=3 < ../kernel_patches/sultan/selinux_hide.patch
           cp ../nomount/kernel/src/* ./fs
           
           
@@ -213,10 +209,6 @@ jobs:
           CONFIG_TMPFS_POSIX_ACL=y
           CONFIG_TMPFS_INODE64=y
           CONFIG_TMPFS_XATTR=y
-          CONFIG_OVERLAY_FS=y
-          CONFIG_CPU_FREQ=y
-          CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
-          CONFIG_CPU_FREQ_GOV_ONDEMAND=y
           EOF
 
           # Guardrails
