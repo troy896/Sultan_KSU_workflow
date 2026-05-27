@@ -28,8 +28,8 @@ jobs:
       matrix:
         kernel:
           - codename: zumapro
-            kernel_repo: "https://github.com/Trijal08/anaconda_kernel_google_tensynos"
-            kernel_branch: "qpr3-stable"
+            kernel_repo: "https://github.com/troy896/anaconda_kernel_google_tensynos"
+            kernel_branch: "anaconda-tensynos-qpr3"
             anykernel_branch: "sultan-zumapro"
             defconfig: zumapro_defconfig
             dtb_path: "google-devices/zumapro/dts"
@@ -130,7 +130,7 @@ jobs:
 
           wget https://raw.githubusercontent.com/ahmed-alnassif/GKI-Duchamp/refs/heads/master/kernel-patches/common/unicode_bypass_fix_6.1.patch
           patch -p1 --fuzz=3 < unicode_bypass_fix_6.1.patch
-          patch -p1 --fuzz=3 < ../kernel_patches/sultan/selinux_hide.patch
+          patch -p1 --fuzz=3 < ../kernel_patches/sultan/selinux_hide-v2.patch
           
           # Clean start for pillars
           echo "" >> "$DEFCONFIG"
