@@ -13,7 +13,7 @@ env:
   SCRIPTS_REPO: https://github.com/TheSillyOk/sh
   KSU_BRANCH: master
   # Single Source of Truth for Toolchain
-  GCC_VERSION: "15.2.0"
+  GCC_VERSION: "14.2.0"
 
 jobs:
   build:
@@ -28,8 +28,8 @@ jobs:
       matrix:
         kernel:
           - codename: zumapro
-            kernel_repo: "https://github.com/troy896/anaconda_kernel_google_tensynos"
-            kernel_branch: "anaconda-tensynos-qpr3"
+            kernel_repo: "https://github.com/Trijal08/anaconda_kernel_google_tensynos"
+            kernel_branch: "qpr3-stable"
             anykernel_branch: "sultan-zumapro"
             defconfig: zumapro_defconfig
             dtb_path: "google-devices/zumapro/dts"
@@ -231,6 +231,7 @@ jobs:
           CONFIG_TMPFS_INODE64=y
           CONFIG_TMPFS_XATTR=y
           CONFIG_OVERLAY_FS=y
+          CONFIG_SECTION_MISMATCH_WARN_ONLY=y
           EOF
 
           # Guardrails
