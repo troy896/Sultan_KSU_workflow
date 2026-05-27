@@ -75,6 +75,8 @@ jobs:
             [ -f "$p" ] && patch -p1 < "$p" || echo "Optional patch $p skipped."
           done
 
+          patch -p1 --fuzz=3 < ../kernel_patches/sultan/tmpfs.patch
+
       - name: Collect build metadata
         id: meta
         run: |
