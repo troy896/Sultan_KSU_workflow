@@ -28,8 +28,8 @@ jobs:
       matrix:
         kernel:
           - codename: zumapro
-            kernel_repo: "https://github.com/troy896/anaconda_kernel_google_tensynos"
-            kernel_branch: "anaconda-tensynos-qpr3"
+            kernel_repo: "https://github.com/Trijal08/anaconda_kernel_google_tensynos"
+            kernel_branch: "qpr3-stable"
             anykernel_branch: "sultan-zumapro"
             defconfig: zumapro_defconfig
             dtb_path: "google-devices/zumapro/dts"
