@@ -233,6 +233,7 @@ jobs:
           CONFIG_ZRAM=y
           CONFIG_ZSMALLOC=y
           CONFIG_ZRAM_DEF_COMP_LZORLE=y
+          CONFIG_ZRAM_GS=n
           CONFIG_MODULE_SIG=n
           CONFIG_ZRAM_WRITEBACK=y
           CONFIG_MODULES=y
