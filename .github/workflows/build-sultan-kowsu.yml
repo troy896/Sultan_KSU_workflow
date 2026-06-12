@@ -7,8 +7,8 @@ on:
 # Shared environment variables used across jobs
 # ---------------------------------------------------------------------------
 env:
-  ANYKERNEL_REPO: https://github.com/TheWildJames/AnyKernel3.git
-  PATCHES_REPO: https://github.com/yapixel/kernel_patches
+  ANYKERNEL_REPO: https://github.com/troy896/AnyKernel3.git
+  PATCHES_REPO: https://github.com/troy896/kernel_patches
   SCRIPTS_REPO: https://github.com/TheSillyOk/sh
   SUSFS_REPO: https://gitlab.com/simonpunk/susfs4ksu
   ANDROID_VERSION: "14"
@@ -31,24 +31,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - codename: zuma
-            kernel_sublevel: "145"
-            kernel_branch: 16.0.0-sultan
-            kernel_repo: https://github.com/kerneltoast/android_kernel_google_tensynos
-            anykernel_branch: sultan-zuma
-            defconfig: zuma_defconfig
-            dtb_path: google-devices/zuma/dts
-            device_label: zuma
-
-          - codename: gs201
-            kernel_sublevel: "145"
-            kernel_branch: 16.0.0-sultan
-            kernel_repo: https://github.com/kerneltoast/android_kernel_google_tensynos
-            anykernel_branch: sultan-gs201
-            defconfig: gs201_defconfig
-            dtb_path: google-devices/gs201/dts
-            device_label: gs201
-
           - codename: zumapro
             kernel_sublevel: "145"
             kernel_branch: 16.0.0-sultan
@@ -98,8 +80,6 @@ jobs:
           git clone --depth=1 "${{ env.SCRIPTS_REPO }}" sh
           git clone --depth=5 "${{ env.SUSFS_REPO }}" \
             -b "gki-android${{ env.ANDROID_VERSION }}-${{ env.KERNEL_VERSION }}" susfs4ksu
-          #git clone --depth=5 "${{ env.SUSFS_REPO }}" \
-          #  -b sultan-shiba-susfs-minimal susfs4ksu
 
 
       # -----------------------------------------------------------------------
@@ -241,6 +221,9 @@ jobs:
             echo "Applying patch: $(basename "$patch")"
             patch -p1 < "$patch"
           done
+
+          patch -p1 --fuzz=3 < ../kernel_patches/unicode_bypass_fix_6.1.patch
+          patch -p1 --fuzz=3 < ../kernel_patches/bbrv3.patch
 
       # -----------------------------------------------------------------------
       - name: Integrate KowSU
