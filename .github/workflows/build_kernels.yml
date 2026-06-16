@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        susfs: [false, true]
+        susfs: [true]
         build:
           - type: KSUN
             ksu: true
@@ -26,10 +26,7 @@ jobs:
             folder: "KernelSU-Next"
             branch: "legacy"
             susfs_branch: "dev-susfs"
-            susfsless_ksu_patches: "try.patch"
-            susfsless_kernel_patches: "sultan/scope-min-hooks-v1.6.patch"
             extra_configs: "CONFIG_KSU_KPROBES_HOOK=n"
-            susfsless_configs: "CONFIG_KSU_SUSFS=n"
             ak3_suffix: "_KSUNext"
         kernel:
           - codename: zumapro
@@ -43,9 +40,6 @@ jobs:
           - build:
               exclude: susfs
             susfs: true
-          - build:
-              exclude: susfsless
-            susfs: false
 
     steps:
       - name: Download and extract GCC 14.2.0 toolchain
