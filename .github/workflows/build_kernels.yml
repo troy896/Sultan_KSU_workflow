@@ -197,7 +197,6 @@ jobs:
           patch -p1 < ${{ env.susfs_dir }}/kernel_patches/50_add_susfs_in_gki-${{ matrix.kernel.android_version }}-${{ matrix.kernel.kernel_version }}.patch || true
           perl -0pi -e 's/if \(IS_ERR\(f\)\) \{/if (IS_ERR(f) && !libperfmgr_redirect(&f, dfd, tmp, &op, how)) {/g' fs/open.c
           patch -p1 < ${{ env.james_dir }}/sultan/sys.c_fix.patch
-          patch -p1 < ${{ env.james_dir }}/wild/susfs_fix_patches/v2.1.0/a14-6.1/base.c.patch
 
           if [[ -n "${{ matrix.build.susfs_configs }}" ]]; then
             for config in ${{ matrix.build.susfs_configs }}; do
